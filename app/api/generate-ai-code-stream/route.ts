@@ -28,6 +28,11 @@ const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const qwenMax = createOpenAI({
+  apiKey: process.env.QWEN_API_KEY,
+  baseURL: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+});
+
 // Helper function to analyze user preferences from conversation history
 function analyzeUserPreferences(messages: ConversationMessage[]): {
   commonPatterns: string[];
@@ -1155,10 +1160,15 @@ CRITICAL: When files are provided in the context:
         const isAnthropic = model.startsWith('anthropic/');
         const isGoogle = model.startsWith('google/');
         const isOpenAI = model.startsWith('openai/gpt-5');
-        const modelProvider = isAnthropic ? anthropic : (isOpenAI ? openai : (isGoogle ? googleGenerativeAI : groq));
+        const isQwen = model.startsWith('qwen/');
+        const modelProvider = isAnthropic ? anthropic : 
+                             (isOpenAI ? openai : 
+                             (isGoogle ? googleGenerativeAI : 
+                             (isQwen ? qwenMax : groq)));
         const actualModel = isAnthropic ? model.replace('anthropic/', '') : 
                            (model === 'openai/gpt-5') ? 'gpt-5' :
-                           (isGoogle ? model.replace('google/', '') : model);
+                           (isGoogle ? model.replace('google/', '') : 
+                           (isQwen ? model.replace('qwen/', '') : model));
 
         // Make streaming API call with appropriate provider
         const streamOptions: any = {

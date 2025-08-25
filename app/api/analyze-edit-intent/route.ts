@@ -18,7 +18,15 @@ const anthropic = createAnthropic({
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL,
+});
+
+const googleGenerativeAI = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
+
+const qwenMax = createOpenAI({
+  apiKey: process.env.QWEN_API_KEY,
+  baseURL: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
 });
 
 // Schema for the AI's search plan - not file selection!
@@ -104,7 +112,9 @@ export async function POST(request: NextRequest) {
         aiModel = openai(model.replace('openai/', ''));
       }
     } else if (model.startsWith('google/')) {
-      aiModel = createGoogleGenerativeAI(model.replace('google/', ''));
+      aiModel = googleGenerativeAI(model.replace('google/', ''));
+    } else if (model.startsWith('qwen/')) {
+      aiModel = qwenMax(model.replace('qwen/', ''));
     } else {
       // Default to groq if model format is unclear
       aiModel = groq(model);
